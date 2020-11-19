@@ -1,0 +1,23 @@
+@import './modules/_colors.scss';
+
+.Cell {
+    $size: 30px;
+    width: $size;
+    height: $size;
+    border-radius: 3px;
+
+    background-color: $bg-color;
+    border: 1px solid #ccc;
+}
+
+.Wall {
+    background-color: $color-1;
+    border-color: $color-1;
+}
+
+*, *::after, *::before {
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+	cursor: default;
+}
