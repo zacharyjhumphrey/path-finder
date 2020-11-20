@@ -1,19 +1,17 @@
 import { useState } from 'react';
+import './style/vendor/_reset.css';
 import './style/App.scss';
 import Grid from './Grid';
 import Controls from './Controls';
 
 function App() {
-  const defaultControls = {
-    material: 0
-  }
+  const defaultMaterial = 0;
+  const [currentMaterial, setCurrentMaterial] = useState(defaultMaterial);
 
-  const [controls, setControls] = useState(defaultControls);
-
-  const childProps = { controls, setControls }
+  const childProps = { currentMaterial, setCurrentMaterial }
   return (
     <div className="App">
-      <Grid {...{ ...controls, setControls }} />
+      <Grid {...childProps} />
       <Controls {...childProps} />
     </div>
   );

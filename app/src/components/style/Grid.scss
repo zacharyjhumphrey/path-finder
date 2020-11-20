@@ -1,5 +1,19 @@
+$rows: 20;
+$cols: 40;
+
 .Grid {
-    width: 500px;
-    height: 500px;
-    border: 10px solid gray;
+	flex-basis: 80%;
+	position: relative;
+
+	display: grid;
+	grid-template-columns: repeat($cols, 32px);
+	grid-template-rows: repeat($rows, 32px);
+}
+
+
+.Grid *, .Grid *::after, .Grid *::before {
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+	cursor: default;
 }

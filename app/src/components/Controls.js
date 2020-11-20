@@ -1,7 +1,7 @@
 import React from 'react';
 import './style/Controls.scss';
 
-function Controls({ controls, setControls }) {
+function Controls({ currentMaterial, setCurrentMaterial }) {
     /* -------------------------- FUNCTIONAL -------------------------- */
 
     /* ---------------------------- RENDER ---------------------------- */
@@ -11,10 +11,15 @@ function Controls({ controls, setControls }) {
             <select 
                 name="materials" 
                 id="materials"
-                onChange={(e) => setControls({ ...controls, material: parseInt(e.target.value) })}
+                onChange={(e) => setCurrentMaterial(e.target.value)}
+                defaultValue={currentMaterial}
             >
-                <option value={0}>Empty Cell</option>
-                <option value={1}>Wall</option>
+                <option value={'Empty-Cell'}>
+                    Empty Cell
+                </option>
+                <option value={'Wall'}> 
+                    Wall
+                </option>
             </select>
         </div>
     );
