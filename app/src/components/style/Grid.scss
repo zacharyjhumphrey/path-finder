@@ -12,8 +12,5 @@ $cols: 40;
 
 
 .Grid *, .Grid *::after, .Grid *::before {
-	-webkit-user-select: none;
-	-webkit-user-drag: none;
-	-webkit-app-region: no-drag;
 	cursor: default;
 }

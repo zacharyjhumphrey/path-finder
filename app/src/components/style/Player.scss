@@ -1,10 +1,10 @@
 @import './modules/_colors.scss';
+@import './modules/_variables.scss';
 
 .Player {
-    background-color: #333;
-    border-color: #333;
-
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    background-color: #333 !important;
+    border-color: #333 !important;
+    // position: absolute !important;
+    // width: $cell-size;
+    // height: $cell-size;
 }
