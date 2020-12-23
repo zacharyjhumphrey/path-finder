@@ -42,17 +42,50 @@ function GridCell(props) {
     Else, change da bitch
 */
 const MemoCell = React.memo(GridCell, (prevProps, nextProps) => {
+    // @NEXT CHECK MY WORK HERE
+    // console.log(prevProps.cellData.borderEdges === nextProps.cellData.borderEdges);
+    // if (prevProps.cellData.borderEdges !== nextProps.cellData.borderEdges) {
+    //     console.log("Border edges don't match. Rerendering the cell");
+    // }
+
     if (
         prevProps.cellData === nextProps.cellData 
         && prevProps.currentMaterial === nextProps.currentMaterial
         && prevProps.gridMouseDown === nextProps.gridMouseDown
-        ) {
-            return true;
+        && prevProps.cellData.borderEdges === nextProps.cellData.borderEdges
+    ) {
+        return true;
     }
-        
+    
     return false;
 });
 
+// CREDIT: https://www.codegrepper.com/code-examples/delphi/check+if+two+dictionaries+are+equal+javascript
+function checkEquivalentObjects(a, b) {
+    // Create arrays of property names
+    var aProps = Object.getOwnPropertyNames(a);
+    var bProps = Object.getOwnPropertyNames(b);
+
+    // If number of properties is different,
+    // objects are not equivalent
+    if (aProps.length !== bProps.length) {
+        return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+
+        // If values of same property are not equal,
+        // objects are not equivalent
+        if (a[propName] !== b[propName]) {
+            return false;
+        }
+    }
+
+    // If we made it this far, objects
+    // are considered equivalent
+    return true;
+}
 
 export default MemoCell;
 

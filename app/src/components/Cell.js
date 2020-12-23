@@ -22,10 +22,10 @@ import { createWall, emptyCell, becomePlayer } from './materialFunctions';
         c (int): 
             Column of the current cell
 ------------------------------------------------------- */
-function Cell({ currentMaterial, gridMouseDown, cellData, updateCell, r, c }) {
+function Cell({ currentMaterial, gridMouseDown, cellData, updateCell, r, c, borderEdges }) {
     const classes = classNames(
         `Cell-shape Cell ${cellData.type}`,
-    )
+    );
 
     /* -------------------------- FUNCTIONAL -------------------------- */
     const [materialFunctions] = useState({
@@ -49,6 +49,9 @@ function Cell({ currentMaterial, gridMouseDown, cellData, updateCell, r, c }) {
                 }
             }}
             draggable={false}
+            style={{
+                'borderRadius': `${cellData.borderEdges.tl ? 0 : 10}px ${cellData.borderEdges.tr ? 0 : 10}px ${cellData.borderEdges.br ? 0 : 10}px ${cellData.borderEdges.bl ? 0 : 10}px`
+            }}
         > </div>
     );
 }

@@ -46,6 +46,7 @@ function Player({ pos, setGridMouseDown }) {
             style={{
                 'top': pos.y,
                 'left': pos.x,
+                'border-radius': '12px'
             }}
         > </div>
     );
