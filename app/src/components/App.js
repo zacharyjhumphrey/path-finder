@@ -5,12 +5,10 @@ import Grid from './Grid';
 import Controls from './Controls';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { OPTIONS } from './options';
 
 function App() {
-  const defaultMaterial = 'Wall'; 
-  // const defaultMaterial = 'Empty-Cell'; 
-
-  const [currentMaterial, setCurrentMaterial] = useState(defaultMaterial);
+  const [currentMaterial, setCurrentMaterial] = useState(OPTIONS.DEFAULT_MATERIAL);
 
   const childProps = { currentMaterial, setCurrentMaterial }
   return (

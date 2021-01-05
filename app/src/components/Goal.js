@@ -3,12 +3,12 @@ import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import { OPTIONS } from './options';
 
-/* PLAYER --------------------------------------------------
+/* GOAL --------------------------------------------------
 ------------------------------------------------------- */
-function Player({ pos, setGridMouseDown }) {
+function Goal({ pos, setGridMouseDown }) {
     /* -------------------------- FUNCTIONAL -------------------------- */
     const [, drag] = useDrag({
-        item: { type: ItemTypes.PLAYER },
+        item: { type: ItemTypes.GOAL },
         isDragging: () => setGridMouseDown(false),
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
@@ -17,8 +17,8 @@ function Player({ pos, setGridMouseDown }) {
     });
 
     return (
-        <div 
-            className="Cell-shape dnd-elem Player" // NOTE: Not an actual cell (absolutely positioned)
+        <div
+            className="Cell-shape dnd-elem Goal" // NOTE: Not an actual cell (absolutely positioned)
             ref={drag}
             style={{
                 'top': pos.y,
@@ -31,6 +31,6 @@ function Player({ pos, setGridMouseDown }) {
     );
 }
 
-export default Player;
+export default Goal;
 
 /* ---------------------------- NOTES ---------------------------- */

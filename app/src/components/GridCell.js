@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
 import { ItemTypes } from './ItemTypes';
@@ -9,17 +9,18 @@ import Cell from './Cell';
     This holds the cells and performs actions on the cell if they are related to drag and drop functions (such as the player)
 ------------------------------------------------------- */
 function GridCell(props) {
-
-    const [{ isOver, canDrop }, drop] = useDrop({
-        accept: ItemTypes.PLAYER,
-        canDrop: () => props.cellData.type === 'Empty-Cell',
-        drop: () => props.changePlayerCell(props.c, props.r),
-        // drop: (item, monitor) => console.log(monitor),
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver(),
-            canDrop: !!monitor.canDrop(),
-        }),
-    });
+    // const [{ isOver, canDrop }, drop] = useDrop({
+    //     accept: [ItemTypes.PLAYER, ItemTypes.GOAL],
+    //     canDrop: () => props.cellData.type === 'Empty-Cell',
+    //     drop: (item) => {
+    //         if (item.type === ItemTypes.PLAYER) props.changePlayerCell(props.c, props.r);
+    //         else if (item.type === ItemTypes.GOAL) props.changeGoalCell(props.c, props.r);
+    //     },
+    //     collect: (monitor) => ({
+    //         isOver: !!monitor.isOver(),
+    //         canDrop: !!monitor.canDrop(),
+    //     }),
+    // });
 
     /* ---------------------------- RENDER ---------------------------- */
     const classes = classNames('Grid-Cell');
@@ -27,66 +28,49 @@ function GridCell(props) {
     return (
         <div
             className={classes}
-            ref={drop}
-            style={{
-                'filter': (isOver && canDrop) ? 'brightness(.5)' : 'brightness(1)'
-            }}
+            // ref={drop}
+            // style={{
+            //     'filter': (isOver && canDrop) ? 'brightness(.5)' : 'brightness(1)'
+            // }}
         > 
-            <Cell {...props}/>
+            <Cell 
+                {...props} 
+            />
         </div>
     );
 }
+
+export default GridCell;
 
 /* MEMO
     If the previous data is the same as the next data, don't update the element
     Else, change da bitch
 */
-const MemoCell = React.memo(GridCell, (prevProps, nextProps) => {
-    // @NEXT CHECK MY WORK HERE
-    // console.log(prevProps.cellData.borderEdges === nextProps.cellData.borderEdges);
-    // if (prevProps.cellData.borderEdges !== nextProps.cellData.borderEdges) {
-    //     console.log("Border edges don't match. Rerendering the cell");
-    // }
+// const MemoCell = React.memo(GridCell, (prevProps, nextProps) => {  
+//     console.log(prevProps.cellData.type, nextProps.cellData.type);
+//     if (
+//         prevProps.cellData === nextProps.cellData
+//         // && prevProps.cellData.isPath === nextProps.cellData.isPath
+//         && prevProps.cellData.type === nextProps.cellData.type
+//         && prevProps.currentMaterial === nextProps.currentMaterial
+//         && prevProps.gridMousedown === nextProps.gridMousedown
+//         && prevProps.playerData.cell === nextProps.playerData.cell
+//         && prevProps.goalData.cell === nextProps.goalData.cell
+//     ) {
+//         return true;
+//     }
 
-    if (
-        prevProps.cellData === nextProps.cellData 
-        && prevProps.currentMaterial === nextProps.currentMaterial
-        && prevProps.gridMouseDown === nextProps.gridMouseDown
-        && prevProps.cellData.borderEdges === nextProps.cellData.borderEdges
-    ) {
-        return true;
-    }
-    
-    return false;
-});
+//     return false;
+// });
 
-// CREDIT: https://www.codegrepper.com/code-examples/delphi/check+if+two+dictionaries+are+equal+javascript
-function checkEquivalentObjects(a, b) {
-    // Create arrays of property names
-    var aProps = Object.getOwnPropertyNames(a);
-    var bProps = Object.getOwnPropertyNames(b);
+// export default MemoCell;
 
-    // If number of properties is different,
-    // objects are not equivalent
-    if (aProps.length !== bProps.length) {
-        return false;
-    }
-
-    for (var i = 0; i < aProps.length; i++) {
-        var propName = aProps[i];
-
-        // If values of same property are not equal,
-        // objects are not equivalent
-        if (a[propName] !== b[propName]) {
-            return false;
-        }
-    }
-
-    // If we made it this far, objects
-    // are considered equivalent
-    return true;
-}
-
-export default MemoCell;
 
 /* ---------------------------- NOTES ---------------------------- */
+/*
+    1. I really want to find a way to update cells when their functions are updated besides passing dependencies into memo.
+        This leads to some sloppy code
+        I want to use useCallback, but (A) I don't know how to use it and (B) it seems like it would update everytime cellMap updates which would lead to very, very, very slow load times
+    2. I think that at some point I should look into combining GridCell and Cell bc differentiating between the two may get hard in the future
+        The problem is that I still need GridCell to hold onto things, and if it becomes just a cell I might not be able to do that
+*/

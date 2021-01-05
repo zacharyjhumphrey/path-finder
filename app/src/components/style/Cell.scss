@@ -2,7 +2,7 @@
 @import './modules/_variables';
 
 
-.Grid *:not(.Player) {
+.Grid *:not(.Goal .Player) {
     // Prevent drag
     -webkit-user-drag: none;
     -khtml-user-drag: none;
@@ -22,15 +22,17 @@
 }
 
 .Cell-shape {
-    width: $cell-size;
-    height: $cell-size;
     border-radius: 3px;
     border: 1px solid transparent;
 }
 
-.Cell {
+.dnd-elem {
+    position: absolute;
+}
+
+.Empty-Cell {
     background-color: $bg-color;
-    border-color: #ccc;
+    border-color: rgba(204, 204, 204, .75);
 }
 
 .Wall {
@@ -39,8 +41,16 @@
 }
 
 .Player {
-    position: absolute;
-
     background-color: #333 !important;
     border-color: #333 !important;
+}
+
+.Goal {
+    background-color: #fcba03 !important;
+    border-color: #fcba03 !important;
+}
+
+.Path {
+    background-color: rgba(3, 140, 252, .4) !important;
+    border-color: rgba(3, 140, 252, .4) !important;
 }

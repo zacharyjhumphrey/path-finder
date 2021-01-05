@@ -1,56 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './style/Cell.scss';
 import classNames from 'classnames';
-import { createWall, emptyCell, becomePlayer } from './materialFunctions';
-
+import { OPTIONS } from './options';
 /* CELL --------------------------------------------------
     "Building block" of the program
 
-    (currentMaterial, gridMouseDown, cellData, cellMap, r, c, setCellMap)
-        currentMaterial (int):
-            Material of the cell. Passed by parent Grid (see *material for more info)
-        gridMouseDown (bool):
-            Whether the user's mouse is down or not 
+    (cellData, r, c, updateCell)
         cellData (obj): 
-            Dictionary of the cell's data. 
+            Object with the cell's data. 
             Holds default data on mount. 
-            As this changes, so does the material of the cell
+            As this changes, so should the appearance of the cell
         updateCell (fn): 
             Function to update the value of any cell
+            Should have (c, r) passed into functions that change this cell
         r (int): 
             Row of the current cell
         c (int): 
             Column of the current cell
+        currentMaterial (string): 
+            Current material that the program is changing data into
 ------------------------------------------------------- */
-function Cell({ currentMaterial, gridMouseDown, cellData, updateCell, r, c, borderEdges }) {
+function Cell(props) {
     const classes = classNames(
-        `Cell-shape Cell ${cellData.type}`,
+        `Cell-shape ${props.cellData.type}`, {
+            'Path': props.cellData.isPath
+        }
     );
 
-    /* -------------------------- FUNCTIONAL -------------------------- */
-    const [materialFunctions] = useState({
-        'Empty-Cell': emptyCell, 
-        'Wall': createWall,
-        'Player': becomePlayer,
-    }); // @NOTE Could be better optimized (see *materialArray)
-
-    const changeMaterial = (mat) => {
-        updateCell(c, r, mat);
-    }
-
     /* ---------------------------- RENDER ---------------------------- */
-    return (        
-        <div 
+    return (
+        <div
             className={classes}
-            onMouseDown={() => (cellData.type !== currentMaterial && cellData.type !== 'Player') ? materialFunctions[currentMaterial](changeMaterial) : materialFunctions['Empty-Cell'](changeMaterial)}
-            onMouseEnter={() => {
-                if (gridMouseDown && (currentMaterial !== cellData.type) && cellData.type !== 'Player') { 
-                    materialFunctions[currentMaterial](changeMaterial)
-                }
-            }}
+            onMouseDown={() => props.dispatch({ type: 'TEST' })}
+            // onMouseDown={() => props.handleMouseDown(props.c, props.r, props.currentMaterial)}
+            // onMouseEnter={() => props.handleMouseEnter(props.c, props.r, props.currentMaterial)}
             draggable={false}
             style={{
-                'borderRadius': `${cellData.borderEdges.tl ? 0 : 10}px ${cellData.borderEdges.tr ? 0 : 10}px ${cellData.borderEdges.br ? 0 : 10}px ${cellData.borderEdges.bl ? 0 : 10}px`
+                'width': `${OPTIONS.CELL_SIZE}px`,
+                'height': `${OPTIONS.CELL_SIZE}px`,
+                'borderRadius': `${props.cellData.borderEdges.tl ? 0 : 10}px ${props.cellData.borderEdges.tr ? 0 : 10}px ${props.cellData.borderEdges.br ? 0 : 10}px ${props.cellData.borderEdges.bl ? 0 : 10}px`
             }}
         > </div>
     );
@@ -58,10 +46,7 @@ function Cell({ currentMaterial, gridMouseDown, cellData, updateCell, r, c, bord
 
 export default Cell;
 
-/* ---------------------------- NOTES ---------------------------- */
-/*
-    *materialArray: 
-        If there was a way to have functions be the value for select fields, I could pass the function instead of the name of the function and call that function here. 
-        This would give the application more consistency between controls and the cell
-        However, React won't let me pass functions into the values of forms
+/* NOTES
+    1. I need to pass handleMouseDown and handleMouseEnter into this function instead of updateCell
+    2. ISSUE WITH THING: Does changing one value in an array cause the whole array to update bc that is the assumption that I am basing all of this off of
 */
