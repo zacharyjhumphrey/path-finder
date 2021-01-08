@@ -25,7 +25,6 @@ function Goal({ pos, setGridMouseDown }) {
                 'left': pos.x,
                 'width': `${OPTIONS.CELL_SIZE}px`,
                 'height': `${OPTIONS.CELL_SIZE}px`,
-                'borderRadius': '12px',
             }}
         > </div>
     );

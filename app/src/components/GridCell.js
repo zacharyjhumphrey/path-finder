@@ -1,26 +1,29 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
 import { ItemTypes } from './ItemTypes';
 import './style/Cell.scss';
 import Cell from './Cell';
+// import useTraceUpdate from './useTraceUpdate';
 
 /* GRIDCELL --------------------------------------------------
     This holds the cells and performs actions on the cell if they are related to drag and drop functions (such as the player)
 ------------------------------------------------------- */
 function GridCell(props) {
-    // const [{ isOver, canDrop }, drop] = useDrop({
-    //     accept: [ItemTypes.PLAYER, ItemTypes.GOAL],
-    //     canDrop: () => props.cellData.type === 'Empty-Cell',
-    //     drop: (item) => {
-    //         if (item.type === ItemTypes.PLAYER) props.changePlayerCell(props.c, props.r);
-    //         else if (item.type === ItemTypes.GOAL) props.changeGoalCell(props.c, props.r);
-    //     },
-    //     collect: (monitor) => ({
-    //         isOver: !!monitor.isOver(),
-    //         canDrop: !!monitor.canDrop(),
-    //     }),
-    // });
+    // useTraceUpdate(props);
+    // console.log('gridcell rerender')
+    const [{ isOver, canDrop }, drop] = useDrop({
+        accept: [ItemTypes.PLAYER, ItemTypes.GOAL],
+        canDrop: () => props.type === 'Empty-Cell',
+        drop: (item) => {
+            if (item.type === ItemTypes.PLAYER) props.changePlayerCell(props.c, props.r);
+            else if (item.type === ItemTypes.GOAL) props.changeGoalCell(props.c, props.r);
+        },
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop(),
+        }),
+    });
 
     /* ---------------------------- RENDER ---------------------------- */
     const classes = classNames('Grid-Cell');
@@ -28,10 +31,11 @@ function GridCell(props) {
     return (
         <div
             className={classes}
-            // ref={drop}
-            // style={{
-            //     'filter': (isOver && canDrop) ? 'brightness(.5)' : 'brightness(1)'
-            // }}
+            draggable={false}
+            ref={drop}
+            style={{
+                'filter': (isOver && canDrop) ? 'brightness(.5)' : 'brightness(1)'
+            }}
         > 
             <Cell 
                 {...props} 
@@ -40,30 +44,34 @@ function GridCell(props) {
     );
 }
 
-export default GridCell;
+// export default GridCell;
 
 /* MEMO
     If the previous data is the same as the next data, don't update the element
     Else, change da bitch
 */
-// const MemoCell = React.memo(GridCell, (prevProps, nextProps) => {  
-//     console.log(prevProps.cellData.type, nextProps.cellData.type);
-//     if (
-//         prevProps.cellData === nextProps.cellData
-//         // && prevProps.cellData.isPath === nextProps.cellData.isPath
-//         && prevProps.cellData.type === nextProps.cellData.type
-//         && prevProps.currentMaterial === nextProps.currentMaterial
-//         && prevProps.gridMousedown === nextProps.gridMousedown
-//         && prevProps.playerData.cell === nextProps.playerData.cell
-//         && prevProps.goalData.cell === nextProps.goalData.cell
-//     ) {
-//         return true;
-//     }
+const MemoCell = React.memo(GridCell, (prevProps, nextProps) => {  
+    if (
+        // ACTUALLY REQUIRED FOR THE CELL
+        prevProps.type === nextProps.type
+        && prevProps.borderEdges === nextProps.borderEdges
+        && prevProps.isVisited === nextProps.isVisited
+        && prevProps.isPath === nextProps.isPath
 
-//     return false;
-// });
+        // @NOTE: I have no idea how to both use React.memo and update functions without updating them when cellMap (the giant Grid representation), so this is the next best thing. Same performance, but really, really annoying to look at. Any help is appreciated 
+        // MOUSEDOWN/MOUSEMOVE DEP
+        && prevProps.currentMaterial === nextProps.currentMaterial
 
-// export default MemoCell;
+        // MOUSEMOVE DEP
+        && prevProps.gridMouseDown === nextProps.gridMouseDown
+    ) {
+        return true;
+    }
+
+    return false;
+});
+
+export default MemoCell;
 
 
 /* ---------------------------- NOTES ---------------------------- */

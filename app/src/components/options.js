@@ -12,5 +12,5 @@ export const OPTIONS = {
         y: 19,
     },
     DEFAULT_MATERIAL: 'Wall',
-    // DEFAULT_MATERIAL: 'Empty-Cell',
+    DEFAULT_ALGORITHM: 'A-Star',
 }

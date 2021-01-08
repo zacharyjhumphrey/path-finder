@@ -18,14 +18,13 @@ function Player({ pos, setGridMouseDown }) {
 
     return (
         <div 
-            className="Cell-shape dnd-elem Player" // NOTE: Not an actual cell (absolutely positioned)
+            className="Player dnd-elem Cell-shape" // NOTE: Not an actual cell (absolutely positioned)
             ref={drag}
             style={{
                 'top': pos.y,
                 'left': pos.x,
                 'width': `${OPTIONS.CELL_SIZE}px`,
                 'height': `${OPTIONS.CELL_SIZE}px`,
-                'borderRadius': '12px',
             }}
         > </div>
     );

@@ -1,15 +1,44 @@
-$rows: 20;
-$cols: 40;
+@import './modules/_colors';
+@import './modules/_variables';
+
+.App-Main {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	flex: 1;
+	// background-color: $color-1;
+}
+
+.App-Main, .App-Main *:not(.Goal .Player) {
+    // Prevent drag
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+
+    // Prevent select
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.Grid-h {
+	display: inline-block;
+    border: 5px solid #333;
+	border-radius: 12px;
+	overflow: hidden;
+}
 
 .Grid {
-	flex-basis: 80%;
 	position: relative;
 
 	display: grid;
 	grid-template-columns: repeat($cols, 32px);
 	grid-template-rows: repeat($rows, 32px);
 }
-
 
 .Grid *, .Grid *::after, .Grid *::before {
 	cursor: default;

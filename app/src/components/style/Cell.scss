@@ -1,33 +1,17 @@
 @import './modules/_colors';
 @import './modules/_variables';
 
-
-.Grid *:not(.Goal .Player) {
-    // Prevent drag
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-
-    // Prevent select
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-}
-
 .Grid-Cell {
     will-change: filter;   
 }
 
 .Cell-shape {
-    border-radius: 3px;
     border: 1px solid transparent;
 }
 
 .dnd-elem {
     position: absolute;
+    cursor: grab;
 }
 
 .Empty-Cell {
@@ -50,7 +34,13 @@
     border-color: #fcba03 !important;
 }
 
-.Path {
+.Visited {
     background-color: rgba(3, 140, 252, .4) !important;
     border-color: rgba(3, 140, 252, .4) !important;
 }
+
+.Path {
+    background-color: rgba(0, 255, 0, .4) !important;
+    border-color: rgba(0, 255, 0, .4) !important;
+}
+

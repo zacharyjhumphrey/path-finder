@@ -3,6 +3,7 @@ export const MATERIALS = {
         type: 'Wall',
         isPassable: false,
         isPath: false,
+        isVisited: false,
         borderEdges: {
             tl: false,
             tr: false,
@@ -14,17 +15,19 @@ export const MATERIALS = {
         type: 'Player-Cell',
         isPassable: true,
         isPath: false,
+        isVisited: false,
         borderEdges: {
-            tl: false,
-            tr: false,
-            br: false,
-            bl: false,
+            tl: true,
+            tr: true,
+            br: true,
+            bl: true,
         }
     },
     'Goal': {
         type: 'Goal-Cell',
         isPassable: true,
         isPath: false,
+        isVisited: false,
         borderEdges: {
             tl: false,
             tr: false,
@@ -36,17 +39,7 @@ export const MATERIALS = {
         type: 'Empty-Cell',
         isPassable: true,
         isPath: false,
-        borderEdges: {
-            tl: true,
-            tr: true,
-            br: true,
-            bl: true,
-        }
-    },
-    'Path-Cell': {
-        type: 'Empty-Cell',
-        isPassable: true,
-        isPath: true,
+        isVisited: false,
         borderEdges: {
             tl: true,
             tr: true,

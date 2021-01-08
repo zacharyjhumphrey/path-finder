@@ -1,13 +1,12 @@
 import { OPTIONS } from './options';
-import { MATERIALS } from './Materials';
 import _ from 'lodash';
 
 // @PICKUP Breaking does not break both loops, and because of of that the algorithm finds the goal 3 times
 
-const interval = 400;
+// const interval = 20;
 const FLT_MAX = 40000; // Don't know what this value is yet
 
-export default function AStar({ cellMap, setCellMap, goalPos, playerPos }) {
+export default function AStar ({ cellMap, setCellMap, goalPos, playerPos }) {
     let openList = createOpenList(playerPos); // @FIX GIVE IT THE PROPER DATA STRUCTURE
     let closedList = createClosedList(playerPos);
     let cellDetails = createCellDetails(playerPos);
@@ -30,13 +29,41 @@ export default function AStar({ cellMap, setCellMap, goalPos, playerPos }) {
             let nodeX = successors[i].x,
                 nodeY = successors[i].y;
 
+            // If two blocks are diagonal to each other, the corner piece that connects them is also blocked although not visually
+            let isBlockedCorner = false;
+            if (i >= 4) {
+                let topUnblocked = isUnblocked(cellMap, successors[0].x, successors[0].y),
+                    leftUnblocked = isUnblocked(cellMap, successors[1].x, successors[1].y),
+                    rightUnblocked = isUnblocked(cellMap, successors[2].x, successors[2].y),
+                    bottomUnblocked = isUnblocked(cellMap, successors[3].x, successors[3].y);
+
+                switch(i) {
+                    case 4: // top-left
+                        isBlockedCorner = !(topUnblocked || leftUnblocked); // Return true if both values are true
+                        break;
+                    case 5:  // top-right
+                        isBlockedCorner = !(topUnblocked || rightUnblocked);
+                        break;
+                    case 6: // bottom-left
+                        isBlockedCorner = !(bottomUnblocked || leftUnblocked);
+                        break;
+                    case 7: // bottom-right
+                        isBlockedCorner = !(bottomUnblocked || rightUnblocked);
+                        break;
+                    default: 
+                        isBlockedCorner = false;
+                        break;
+                } 
+            }
+
             // Calculate a cell's f-value if it is within map bounds 
             // AND it is a passable cell 
             // AND it has not been visited before
             if ( isValid(nodeX, nodeY) ) {
                 if (
                     isUnblocked(cellMap, nodeX, nodeY) &&
-                    !closedList[nodeY][nodeX]
+                    !closedList[nodeY][nodeX] && 
+                    !isBlockedCorner
                 ) {
                     // GOAL CASE 
                     if (isGoal(nodeX, nodeY, goalPos)) {
@@ -50,16 +77,26 @@ export default function AStar({ cellMap, setCellMap, goalPos, playerPos }) {
                     }
                     // NORMAL CASE (GENERIC, AVAILABLE CELL)
                     else {
+                        // Create variables
                         let node = cellDetails[nodeY][nodeX];
                         let newG = parent.g + 1; // CALC G VALUE
                         let newH = getHValue(nodeX, nodeY, goalPos); // CALC H VALUE 
                         let newF = newG + newH;
+
+                        // Show that this cell has been visited
+                        let newMap = [...cellMap];
+                        let newCell = newMap[nodeY][nodeX];
+                        newCell.isVisited = true;
+                        newMap[nodeY][nodeX] = newCell;
+
+                        setCellMap(newMap);
 
                         if (
                             node.f === FLT_MAX ||
                             node.f > newF
                         ) {
                             openList.push({ f: 0, x: nodeX, y: nodeY });
+
 
                             // Update the details of the cell
                             cellDetails[nodeY][nodeX] = {
@@ -75,7 +112,6 @@ export default function AStar({ cellMap, setCellMap, goalPos, playerPos }) {
             }
 
         }
-
     }
 
     if (!foundGoal) console.log('ERROR: FAILED TO FIND GOAL');
@@ -140,16 +176,27 @@ function createCellDetails(playerPos) { // @NOTE: TRY TO REMOVE THE RETURN AND S
 
 /* GETSUCCESSORS ----------------
     Returns an array of position objects for the surrounding nodes
+
+    Returns: [
+        top,
+        left,
+        right,
+        bottom,
+        top-left,
+        top-right,
+        bottom-left,
+        bottom-right,
+    ]
 ------------------------------- */
 function getSuccessors(x, y) {
     return [
-        { x: x - 1, y: y - 1 }, 
         { x: x    , y: y - 1 }, 
-        { x: x + 1, y: y - 1 }, 
         { x: x - 1, y: y     }, 
         { x: x + 1, y: y     }, 
-        { x: x - 1, y: y + 1 }, 
         { x: x    , y: y + 1 },
+        { x: x - 1, y: y - 1 }, 
+        { x: x + 1, y: y - 1 }, 
+        { x: x - 1, y: y + 1 }, 
         { x: x + 1, y: y + 1 }, 
     ]
 }
@@ -175,6 +222,7 @@ function isValid(x, y) {
     Returns whether or not a node is capable of being passed
 ------------------------------ */
 function isUnblocked(cellMap, x, y) {
+    if (!isValid(x, y)) return false; // Make sure the cell is valid
     return cellMap[y][x].isPassable;
 }
 
@@ -197,12 +245,8 @@ function tracePath(cellDetails, goalPos, cellMap, setCellMap) {
         cellDetails[tempRow][tempCol].parent_x === tempCol &&
         cellDetails[tempRow][tempCol].parent_y === tempRow
     )) {
-        // let currentCell = tempMap[tempRow][tempCol];
-        // let oldMaterial = MATERIALS[currentCell.type];
-        // oldMaterial.isPath = true;
-        // tempMap[tempRow][tempCol] = oldMaterial;
-
-        tempMap[tempRow][tempCol].type = 'Wall';
+        // EDIT DATA TO SHOW THAT THE CELL HAS BEEN VISITED
+        tempMap[tempRow][tempCol].isPath = true;
 
         let newX = cellDetails[tempRow][tempCol].parent_x;
         let newY = cellDetails[tempRow][tempCol].parent_y;
@@ -211,7 +255,7 @@ function tracePath(cellDetails, goalPos, cellMap, setCellMap) {
         tempCol = newX;
     }
 
-    console.log('finished');
-
     setCellMap(tempMap);
+    
+    console.log('FINISHED FINDING/DRAWING PATH');
 }

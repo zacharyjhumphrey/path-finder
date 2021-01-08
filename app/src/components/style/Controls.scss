@@ -1,0 +1,43 @@
+@import './modules/_colors';
+
+.Controls {
+    display: flex;
+    flex-direction: column;
+}
+
+.Controls .Panel {
+    flex: 1;
+}
+
+.Controls .select-panel-option {
+    width: 33.333%;
+    height: 20px;
+    cursor: pointer;
+}
+
+.Controls .choose-panel {
+    width: 100%;
+}
+
+.Controls .select-panel-option {
+    text-align: center;
+    padding-top: .4em;
+    padding-bottom: .4em;
+    border-radius: 8px 8px 0 0;
+}
+
+.Controls .material-panel-option {
+    background-color: $off-purple;
+}
+
+.Controls .algorithm-panel-option {
+    background-color: $off-blue;
+}
+
+.Controls .player-panel-option {
+    background-color: $off-green;
+}
+
+.Controls .materials-panel {
+    display: block;
+}
