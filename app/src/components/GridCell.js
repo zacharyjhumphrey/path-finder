@@ -10,8 +10,6 @@ import Cell from './Cell';
     This holds the cells and performs actions on the cell if they are related to drag and drop functions (such as the player)
 ------------------------------------------------------- */
 function GridCell(props) {
-    // useTraceUpdate(props);
-    // console.log('gridcell rerender')
     const [{ isOver, canDrop }, drop] = useDrop({
         accept: [ItemTypes.PLAYER, ItemTypes.GOAL],
         canDrop: () => props.type === 'Empty-Cell',
@@ -43,8 +41,6 @@ function GridCell(props) {
         </div>
     );
 }
-
-// export default GridCell;
 
 /* MEMO
     If the previous data is the same as the next data, don't update the element

@@ -1,43 +1,92 @@
 @import './modules/_colors';
 
+// General controls
 .Controls {
     display: flex;
     flex-direction: column;
+    background-color: #F193FB;
 }
 
 .Controls .Panel {
     flex: 1;
+    display: flex;
+    align-items: center;
 }
 
-.Controls .select-panel-option {
-    width: 33.333%;
-    height: 20px;
-    cursor: pointer;
-}
-
+// Choosing a panel
 .Controls .choose-panel {
     width: 100%;
 }
 
 .Controls .select-panel-option {
-    text-align: center;
+    width: 33.333%;
+    height: 27px;
+    position: relative;
     padding-top: .4em;
     padding-bottom: .4em;
+    text-align: center;
+    font-weight: 500;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+}
+
+.Controls .selected-panel-option {
+    background-color: white !important;
+}
+
+.Controls .panel-option-underline {
+    width: 100%;
+    height: 9px;
+    position: absolute;
+    left: 0px;
+    bottom: 0;
     border-radius: 8px 8px 0 0;
 }
 
-.Controls .material-panel-option {
-    background-color: $off-purple;
-}
-
-.Controls .algorithm-panel-option {
+.Controls .material-panel-option, .Controls .material-underline {
     background-color: $off-blue;
 }
 
-.Controls .player-panel-option {
+.Controls .algorithm-panel-option, .Controls .algorithm-underline {
+    background-color: $off-red;
+}
+
+.Controls .player-panel-option, .Controls .player-underline {
     background-color: $off-green;
 }
 
 .Controls .materials-panel {
     display: block;
+}
+
+// Panel inputs
+.Controls .controls-select-box {
+    font-size: 16px;
+    padding: .45em .2em;
+    margin: 15px;
+    border: 1px solid $off-blue;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.Controls .controls-checkbox {
+    display: flex;
+    align-items: center;
+
+    font-size: 16px;
+    padding: .45em .32em;
+    margin: 15px;
+    border: 1px solid $off-blue;
+    border-radius: 3px;
+    background-color: $white;
+    cursor: pointer;
+}
+
+.Controls input[type=checkbox] {
+    cursor: pointer;
+}
+
+.Controls .controls-checkbox-checked {
+    color: white;
+    background-color: $off-blue;
 }

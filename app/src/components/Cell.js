@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './style/Cell.scss';
 import classNames from 'classnames';
 import { OPTIONS } from './options';
@@ -22,12 +22,28 @@ import { OPTIONS } from './options';
             Current material that the program is changing data into
 ------------------------------------------------------- */
 function Cell(props) {
+    const [isPath, setPath] = useState(false);
     const classes = classNames(
         `Cell-shape ${props.type}`, {
-            'Path': props.isPath,
+            'Path': isPath,
             'Visited': props.isVisited,
         }
     );
+
+    // Wait to add the path class until the animation is done
+    useEffect(() => {
+        if (!props.isPath) return;
+
+        const timer = setTimeout(() => {
+            setPath(true);
+        }, props.totalPathingDuration * 1000);
+        return () => clearTimeout(timer);
+    }, [props.totalPathingDuration, props.isPath]);
+
+    // Remove path when board is cleared
+    useEffect(() => {
+        if (!props.isPath) setPath(false);
+    }, [props.isPath])
 
     /* ---------------------------- RENDER ---------------------------- */
     return (
@@ -43,7 +59,10 @@ function Cell(props) {
                     ${props.borderEdges.tl ? 0 : 10}px 
                     ${props.borderEdges.tr ? 0 : 10}px 
                     ${props.borderEdges.br ? 0 : 10}px 
-                    ${props.borderEdges.bl ? 0 : 10}px`
+                    ${props.borderEdges.bl ? 0 : 10}px`,
+
+                // Animate in sequence with the other visited cells until isPath is true, then change all paths at once
+                'transitionDelay': `${(!isPath) ? props.transitionDelay : 0.5}s`,
             }}
         > </div>
     );

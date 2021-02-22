@@ -1,67 +1,47 @@
-import { OPTIONS } from './options';
-import _ from 'lodash';
+import { OPTIONS } from '../options';
 
 // @PICKUP Breaking does not break both loops, and because of of that the algorithm finds the goal 3 times
 
-// const interval = 20;
-const FLT_MAX = 40000; // Don't know what this value is yet
+const FLT_MAX = 40000;
+const INCREMENT_ANIMATION = 0.02;
 
-export default function AStar ({ cellMap, setCellMap, goalPos, playerPos }) {
+export default function AStar ({ cellMap, setCellMap, goalPos, playerPos, passableMaterials }) {
     let openList = createOpenList(playerPos); // @FIX GIVE IT THE PROPER DATA STRUCTURE
     let closedList = createClosedList(playerPos);
     let cellDetails = createCellDetails(playerPos);
     let foundGoal = false;
+    let animationTimer = 0;
 
     // While the list of available cells is not empty,
     // AND the goal is not found
     while (openList.length > 0 && !foundGoal) {
         // Get the info on the first node in the array
-        // This loop will evaluate all of the information from the array
-        let p = openList[0]; 
+        // This loop will evaluate all of the information from the array        
+        let pIdx = findLowestF(openList);
+        let p = openList[pIdx]; 
         let parent = cellDetails[p.y][p.x];
-        openList.splice(0,1); // @NOTE: MIGHT NOT WORK IF THERE IS ONLY ONE VALUE IN THE ARRAY
+        openList.splice(pIdx, 1);
         closedList[p.y][p.x] = true;
 
         let successors = getSuccessors(p.x, p.y);
 
+        // If two blocks are diagonal to each other, the corner piece that connects them is also blocked although not visually
+        let blockedCorners = getBlockedCorners(cellMap, successors, passableMaterials);
+
         // Loop through the 8 adjacent cells
         for (let i = 0; i < 8; i++) {
+            // animationTimer += INCREMENT_ANIMATION;
             let nodeX = successors[i].x,
                 nodeY = successors[i].y;
 
-            // If two blocks are diagonal to each other, the corner piece that connects them is also blocked although not visually
-            let isBlockedCorner = false;
-            if (i >= 4) {
-                let topUnblocked = isUnblocked(cellMap, successors[0].x, successors[0].y),
-                    leftUnblocked = isUnblocked(cellMap, successors[1].x, successors[1].y),
-                    rightUnblocked = isUnblocked(cellMap, successors[2].x, successors[2].y),
-                    bottomUnblocked = isUnblocked(cellMap, successors[3].x, successors[3].y);
-
-                switch(i) {
-                    case 4: // top-left
-                        isBlockedCorner = !(topUnblocked || leftUnblocked); // Return true if both values are true
-                        break;
-                    case 5:  // top-right
-                        isBlockedCorner = !(topUnblocked || rightUnblocked);
-                        break;
-                    case 6: // bottom-left
-                        isBlockedCorner = !(bottomUnblocked || leftUnblocked);
-                        break;
-                    case 7: // bottom-right
-                        isBlockedCorner = !(bottomUnblocked || rightUnblocked);
-                        break;
-                    default: 
-                        isBlockedCorner = false;
-                        break;
-                } 
-            }
+            let isBlockedCorner = blockedCorners[i];
 
             // Calculate a cell's f-value if it is within map bounds 
             // AND it is a passable cell 
             // AND it has not been visited before
             if ( isValid(nodeX, nodeY) ) {
                 if (
-                    isUnblocked(cellMap, nodeX, nodeY) &&
+                    isUnblocked(cellMap, nodeX, nodeY, passableMaterials) &&
                     !closedList[nodeY][nodeX] && 
                     !isBlockedCorner
                 ) {
@@ -72,31 +52,32 @@ export default function AStar ({ cellMap, setCellMap, goalPos, playerPos }) {
                         cellDetails[nodeY][nodeX].parent_x = p.x;
                         cellDetails[nodeY][nodeX].parent_y = p.y;
 
-                        tracePath(cellDetails, goalPos, cellMap, setCellMap);
+                        tracePath(cellDetails, goalPos, cellMap, setCellMap, animationTimer);
                         break; // @NOTE: THIS ALSO NEEDS TO BREAK OUT OF THE WHILE LOOP, NOT SURE IF IT WILL
                     }
                     // NORMAL CASE (GENERIC, AVAILABLE CELL)
                     else {
                         // Create variables
                         let node = cellDetails[nodeY][nodeX];
-                        let newG = parent.g + 1; // CALC G VALUE
+                        let moveCost = Math.sqrt(Math.pow(Math.abs(nodeX - p.x), 2) + Math.pow(Math.abs(nodeY - p.y), 2))
+                        let newG = parent.g + moveCost; // CALC G VALUE
                         let newH = getHValue(nodeX, nodeY, goalPos); // CALC H VALUE 
                         let newF = newG + newH;
-
-                        // Show that this cell has been visited
-                        let newMap = [...cellMap];
-                        let newCell = newMap[nodeY][nodeX];
-                        newCell.isVisited = true;
-                        newMap[nodeY][nodeX] = newCell;
-
-                        setCellMap(newMap);
 
                         if (
                             node.f === FLT_MAX ||
                             node.f > newF
                         ) {
-                            openList.push({ f: 0, x: nodeX, y: nodeY });
+                            openList.push({ f: newF, x: nodeX, y: nodeY });
 
+                            // Show that this cell has been visited
+                            let newMap = [...cellMap];
+                            let newCell = newMap[nodeY][nodeX];
+                            newCell.isVisited = true;
+                            newCell.transitionDelay = animationTimer;
+                            newMap[nodeY][nodeX] = newCell;
+
+                            setCellMap(newMap);
 
                             // Update the details of the cell
                             cellDetails[nodeY][nodeX] = {
@@ -112,9 +93,67 @@ export default function AStar ({ cellMap, setCellMap, goalPos, playerPos }) {
             }
 
         }
+
+        // Delay the animation of the next cell's children
+        animationTimer += INCREMENT_ANIMATION;
     }
 
     if (!foundGoal) console.log('ERROR: FAILED TO FIND GOAL');
+}
+
+/* GETBLOCKEDCORNERS ------------
+    Returns an array of 8 values. Indicating whether a cell is blocked by the two adjacent cells. 
+
+    For example: 
+        O O O
+        O C X
+        O X O
+
+        C: Current Cell
+        O: Open Cell
+        X: Blocked Cell
+
+        In this example, the bottom right corner is also inaccessible because the corner on the right and bottom are blocking the path from C to O. However, I still want to be able to move horizontally in the search, so this allows for both approaches. 
+
+    Returns:
+        idx (int): Index of the lowest f value in the list
+--------------------------- */
+function getBlockedCorners(cellMap, successors, passableMaterials) {
+    let topUnblocked = isUnblocked(cellMap, successors[0].x, successors[0].y, passableMaterials),
+        leftUnblocked = isUnblocked(cellMap, successors[1].x, successors[1].y, passableMaterials),
+        rightUnblocked = isUnblocked(cellMap, successors[2].x, successors[2].y, passableMaterials),
+        bottomUnblocked = isUnblocked(cellMap, successors[3].x, successors[3].y, passableMaterials);
+
+    return [
+        false, // top
+        false, // left
+        false, // right
+        false, // bottom
+        !(topUnblocked || leftUnblocked), // top left corner
+        !(topUnblocked || rightUnblocked), // top right corner
+        !(bottomUnblocked || leftUnblocked), // bottom left corner
+        !(bottomUnblocked || rightUnblocked) // bottom right corner
+    ]
+}
+
+/* FINDLOWESTF ------------
+    Finds the value in a list with the lowest f value
+
+    Returns: 
+        idx (int): Index of the lowest f value in the list
+--------------------------- */
+function findLowestF(arr) {
+    let lowestF = FLT_MAX;
+    let fIdx = 0;
+
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].f < lowestF) {
+            lowestF = arr[i].f;
+            fIdx = i;
+        }
+    }
+
+    return fIdx;
 }
 
 /* CREATEOPENLIST ------------
@@ -205,7 +244,7 @@ function getSuccessors(x, y) {
     Generates the h-value (distance between the node and the goal) for a given node
 ------------------------------ */
 function getHValue(x, y, goal) {
-    return _.max([Math.abs(x - goal.x), Math.abs(y - goal.y)]);
+    return Math.sqrt(Math.pow(x - goal.x, 2) + Math.pow(y - goal.y, 2));
 }
 
 /* ISVALID ----------------------
@@ -221,9 +260,10 @@ function isValid(x, y) {
 /* ISUNBLOCKED ------------------
     Returns whether or not a node is capable of being passed
 ------------------------------ */
-function isUnblocked(cellMap, x, y) {
+function isUnblocked(cellMap, x, y, materials) {
+    console.log('here');
     if (!isValid(x, y)) return false; // Make sure the cell is valid
-    return cellMap[y][x].isPassable;
+    return materials.includes(cellMap[y][x].type);
 }
 
 /* ISGOAL ------------------
@@ -236,7 +276,7 @@ function isGoal(x, y, goal) {
     )
 }
 
-function tracePath(cellDetails, goalPos, cellMap, setCellMap) {
+function tracePath(cellDetails, goalPos, cellMap, setCellMap, animationTimer) {
     let tempRow = cellDetails[goalPos.y][goalPos.x].parent_y;
     let tempCol = cellDetails[goalPos.y][goalPos.x].parent_x;
     let tempMap = [...cellMap];
@@ -247,6 +287,7 @@ function tracePath(cellDetails, goalPos, cellMap, setCellMap) {
     )) {
         // EDIT DATA TO SHOW THAT THE CELL HAS BEEN VISITED
         tempMap[tempRow][tempCol].isPath = true;
+        tempMap[tempRow][tempCol].totalPathingDuration = animationTimer;
 
         let newX = cellDetails[tempRow][tempCol].parent_x;
         let newY = cellDetails[tempRow][tempCol].parent_y;

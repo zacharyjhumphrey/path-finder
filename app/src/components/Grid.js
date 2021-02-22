@@ -7,17 +7,12 @@ import Goal from './Goal';
 import _ from 'lodash';
 import { MATERIALS } from './Materials';
 import { OPTIONS } from './options';
-import AStar from './AStar';
+import AStar from './algorithms/AStar';
+import Dijkstra from './algorithms/Dijkstra';
+import classNames from 'classnames';
 
-function Grid({ currentMaterial, currentAlgorithm }) {
+function Grid({ currentMaterial, currentAlgorithm, playerData, setPlayerData }) {
     const [gridMouseDown, setMouseDown] = useState(false);
-    const [playerData, setPlayerData] = useState({
-        pos: {
-            x: OPTIONS.DEFAULT_PLAYER_CELL.x * OPTIONS.CELL_SIZE + OPTIONS.DEFAULT_PLAYER_CELL.x * OPTIONS.CELL_BORDER_SIZE * 2,
-            y: OPTIONS.DEFAULT_PLAYER_CELL.y * OPTIONS.CELL_SIZE + OPTIONS.DEFAULT_PLAYER_CELL.y * OPTIONS.CELL_BORDER_SIZE * 2,
-        },
-        cell: OPTIONS.DEFAULT_PLAYER_CELL,
-    });
     const [goalData, setGoalData] = useState({
         pos: {
             x: OPTIONS.DEFAULT_GOAL_CELL.x * OPTIONS.CELL_SIZE + OPTIONS.DEFAULT_GOAL_CELL.x * OPTIONS.CELL_BORDER_SIZE * 2, 
@@ -25,6 +20,7 @@ function Grid({ currentMaterial, currentAlgorithm }) {
         },
         cell: OPTIONS.DEFAULT_GOAL_CELL,
     })
+    const [pathing, setPathing] = useState(false); // boolean for whether or not the Grid is currently showing a path
 
     const initGrid = () => {
         let map = Array.from({ length: OPTIONS.ROWS }, () => Array.from({ length: OPTIONS.COLS }, () => { 
@@ -47,6 +43,7 @@ function Grid({ currentMaterial, currentAlgorithm }) {
 
     const [cellMap, setCellMap] = useState([]); // 2D ARRAY OF CELLS
 
+    // Creating the grid
     useEffect(() => {
         setCellMap(() => initGrid());
     }, []);
@@ -87,9 +84,7 @@ function Grid({ currentMaterial, currentAlgorithm }) {
 
         
         if (currentCell.type === currentMaterial) newData = Object.assign({}, MATERIALS['Empty-Cell']);
-        // let newMap = [...cellMap];
-        // newMap[y][x] = newData;
-        // setCellMap(newMap);
+
         changeCellMaterial(x, y, newData);
     }
 
@@ -104,12 +99,16 @@ function Grid({ currentMaterial, currentAlgorithm }) {
     }
 
     const clearBoardSearch = () => {
+        setPathing(false);
+
         let newMap = [...cellMap];
 
         for (var i = 0; i < OPTIONS.ROWS; i++) {
             for (var j = 0; j < OPTIONS.COLS; j++) {
                 newMap[i][j].isVisited = false;
                 newMap[i][j].isPath = false;
+                newMap[i][j].transitionDelay = 0;
+                newMap[i][j].totalPathingDuration = 0;
             }
         }
 
@@ -157,6 +156,36 @@ function Grid({ currentMaterial, currentAlgorithm }) {
         changeCellMaterial(newX, newY, MATERIALS['Goal']);
     }
 
+    const find = () => {
+        // Mark that the program is searching
+        setPathing(true);
+
+        // Search 
+        switch (currentAlgorithm) {
+            case ('A-Star'):
+                AStar({
+                    cellMap,
+                    setCellMap,
+                    goalPos: { ...goalData.cell },
+                    playerPos: { ...playerData.cell },
+                    passableMaterials: playerData.passableMaterials,
+                });
+                break;
+            case ('Dijkstra'):
+                Dijkstra({
+                    cellMap,
+                    setCellMap,
+                    goalPos: { ...goalData.cell },
+                    playerPos: { ...playerData.cell },
+                    passableMaterials: playerData.passableMaterials,
+                });
+                break;
+            default:
+                console.log('ERROR USING ALGORITHM. RELOAD PAGE');
+                break;
+        }
+    }
+
     const renderGrid = () => cellMap.map((row, r) => row.map((cellData, c) => { 
         let cellProps = {
             ...cellData,
@@ -164,6 +193,7 @@ function Grid({ currentMaterial, currentAlgorithm }) {
             currentMaterial,
             gridMouseDown,
             r, c,
+            
             handleMouseDown: handleCellMouseDown,
             handleMouseEnter: handleCellMouseEnter,
             changePlayerCell,
@@ -176,13 +206,20 @@ function Grid({ currentMaterial, currentAlgorithm }) {
                 />
     }));
 
+    const gridHolderClasses = classNames("Grid-h", {
+        "Wall-border": currentMaterial === "Wall",
+        "Empty-Cell-border": currentMaterial === "Empty-Cell",
+        "Water-border": currentMaterial === "Water",
+    });
+
     return (
         <div className="App-Main">
-            <div className="Grid-h">
+            <div className={gridHolderClasses}>
                 <div
                     className="Grid"
                     onMouseDown={(e) => { 
-                        if (!e.target.classList.contains('Player')) setMouseDown(true);
+                        if (pathing) clearBoardSearch();
+                        if (!(e.target.classList.contains('Player') || e.target.classList.contains('Goal'))) setMouseDown(true);
                     }}
                     onMouseUp={() => setMouseDown(false)}
                     onMouseLeave={() => setMouseDown(false)}
@@ -192,27 +229,13 @@ function Grid({ currentMaterial, currentAlgorithm }) {
                     <Goal pos={goalData.pos} setGridMouseDown={setMouseDown} />
                 </div>
             </div>
-
-            <button onClick={() => {
-                // Search 
-                switch(currentAlgorithm) {
-                    case ('A-Star'): 
-                        AStar({
-                            cellMap,
-                            setCellMap,
-                            goalPos: { ...goalData.cell },
-                            playerPos: { ...playerData.cell },
-                        })
-                        break;
-                    case ('Dijkstra'): 
-                        console.log('Dijkstra');
-                        break;
-                    default: 
-                        console.log('ERROR USING ALGORITHM. RELOAD PAGE');
-                        break;
-                }
-                }}>FIND ME</button>
-            <button onClick={() => clearBoardSearch()}>CLEAR ME</button>
+                
+            <div className="grid-buttons">
+                <button onClick={() => find()}>FIND ME</button>
+                <button onClick={() => {
+                    clearBoardSearch();
+                }}>CLEAR ME</button>
+            </div>
         </div>
     );
 }

@@ -34,13 +34,19 @@
     border-color: #fcba03 !important;
 }
 
+.Water {
+    background-color: $water !important;
+    border-color: $water !important;
+}
+
 .Visited {
     background-color: rgba(3, 140, 252, .4) !important;
     border-color: rgba(3, 140, 252, .4) !important;
+    transition: all .5s ease-out;
+
 }
 
 .Path {
     background-color: rgba(0, 255, 0, .4) !important;
     border-color: rgba(0, 255, 0, .4) !important;
 }
-

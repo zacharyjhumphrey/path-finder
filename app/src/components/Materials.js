@@ -9,7 +9,9 @@ export const MATERIALS = {
             tr: false,
             br: false,
             bl: false,
-        }
+        },
+        transitionDelay: 0,
+        totalPathingDuration: 0,
     },
     'Player': {
         type: 'Player-Cell',
@@ -21,7 +23,9 @@ export const MATERIALS = {
             tr: true,
             br: true,
             bl: true,
-        }
+        },
+        transitionDelay: 0,
+        totalPathingDuration: 0,
     },
     'Goal': {
         type: 'Goal-Cell',
@@ -33,7 +37,9 @@ export const MATERIALS = {
             tr: false,
             br: false,
             bl: false,
-        }
+        },
+        transitionDelay: 0,
+        totalPathingDuration: 0,
     },
     'Empty-Cell': {
         type: 'Empty-Cell',
@@ -45,6 +51,22 @@ export const MATERIALS = {
             tr: true,
             br: true,
             bl: true,
-        }
+        },
+        transitionDelay: 0,
+        totalPathingDuration: 0,
     },
+    'Water': {
+        type: 'Water',
+        isPassable: true,
+        isPath: false,
+        isVisited: false,
+        borderEdges: {
+            tl: false,
+            tr: false,
+            br: false,
+            bl: false,
+        },
+        transitionDelay: 0,
+        totalPathingDuration: 0,
+    }
 }

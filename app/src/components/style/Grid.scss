@@ -3,14 +3,15 @@
 
 .App-Main {
 	display: flex;
-	justify-content: center;
+	justify-content: space-evenly;
 	align-items: center;
+	flex-direction: column;
 
 	flex: 1;
 	// background-color: $color-1;
 }
 
-.App-Main, .App-Main *:not(.Goal .Player) {
+.App-Main, .App-Main *:not(.Goal, .Player) {
     // Prevent drag
     -webkit-user-drag: none;
     -khtml-user-drag: none;
@@ -22,14 +23,42 @@
     -khtml-user-select: none;
     -moz-user-select: none;
     -o-user-select: none;
-    user-select: none;
+	user-select: none;
+}
+
+.App-Main button {
+	all: unset;
+
+	white-space: pre;
+	padding: .8em 1.2em;
+	font-size: 22px;
+	margin: 0 50px;
+	border-radius: 50px;
+	color: $white;
+	cursor: pointer;
+	background-color: #615FE3;
 }
 
 .Grid-h {
 	display: inline-block;
-    border: 5px solid #333;
+    border: 3px solid #333;
 	border-radius: 12px;
 	overflow: hidden;
+	box-shadow: 0px 4px 6px 8px rgba(0, 0, 0, 0.25);
+
+	transition: border .2s ease-out;
+}
+
+.Wall-border { 
+	border-color: $color-1 !important;
+}
+
+.Empty-Cell-border { 
+	border-color: none !important;
+}
+
+.Water-border { 
+	border-color: $water !important;
 }
 
 .Grid {
